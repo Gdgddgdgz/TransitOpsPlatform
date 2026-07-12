@@ -14,7 +14,14 @@ export const getCurrentUser = AsyncHandler(async (req, res) => {
 
   const clerkUser = await clerkClient.users.getUser(userId);
 
-  const email = clerkUser.emailAddresses[0].emailAddress;
+  const email = clerkUser.emailAddresses?.[0]?.emailAddress;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "User has no email address associated with Clerk",
+    });
+  }
 
   const user = await prisma.user.findFirst({
     where: {
