@@ -12,12 +12,13 @@ datasource db {
   provider = "postgresql"
 }
 enum UserRole {
+  ADMIN
   FLEET_MANAGER
   DISPATCHER
   DRIVER
   SAFETY_OFFICER
   FINANCIAL_ANALYST
-  ADMIN
+  
 }
 
 enum DriverStatus {

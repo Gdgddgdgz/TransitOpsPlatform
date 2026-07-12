@@ -5,7 +5,7 @@ export const authUser = async (req, res, next) => {
   try {
     const { userId, orgId, isAuthenticated } = getAuth(req);
 
-    if (!isAuthenticated || !userId) {
+    if (!isAuthenticated || !userId || !orgId) {
       return res.status(401).json({
         success: false,
         message: "Unauthorized",
@@ -38,10 +38,11 @@ export const authUser = async (req, res, next) => {
     if (!user) {
       return res.status(403).json({
         success: false,
-        message: "User is not part of this organization",
+        message: "You are not a member of this organization.",
       });
     }
 
+    // First login after accepting invitation
     if (!user.clerkUserId) {
       user = await prisma.user.update({
         where: {
@@ -49,6 +50,8 @@ export const authUser = async (req, res, next) => {
         },
         data: {
           clerkUserId: userId,
+          name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim(),
+          isActive: true,
         },
         include: {
           organization: true,
@@ -56,10 +59,23 @@ export const authUser = async (req, res, next) => {
       });
     }
 
+    // Block inactive users
+    if (!user.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "Your account is inactive.",
+      });
+    }
+
     req.user = user;
 
+    req.auth = {
+      clerkUserId: userId,
+      clerkOrgId: orgId,
+    };
+
     next();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 };
