@@ -1,6 +1,13 @@
-import type { getVehicleReportRows } from "../data/data";
+type ReportRow = {
+  vehicle: { id: string; registrationNumber: string; model: string };
+  distance: number;
+  efficiency: number;
+  opCost: number;
+  revenue: number;
+  roi: number;
+};
 
-export default function ReportTable({ rows }: { rows: ReturnType<typeof getVehicleReportRows> }) {
+export default function ReportTable({ rows }: { rows: ReportRow[] }) {
   return (
     <div className="rounded-2xl border border-border bg-card overflow-hidden">
       <div className="overflow-x-auto">

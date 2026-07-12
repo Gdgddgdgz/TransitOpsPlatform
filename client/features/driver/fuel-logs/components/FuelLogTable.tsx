@@ -1,7 +1,7 @@
 import { Fuel } from "lucide-react";
-import type { FuelLog, Vehicle } from "@/lib/types";
+import type { FuelLog } from "@/lib/types";
 
-type Row = FuelLog & { vehicle?: Vehicle };
+type Row = FuelLog & { vehicle?: { id?: string; registrationNumber?: string } };
 
 export default function FuelLogTable({ rows }: { rows: Row[] }) {
   return (

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { AppQueryProvider } from "@/lib/query-client";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,7 +20,9 @@ export default function RootLayout({
       afterSignOutUrl="/auth/sign-in"
     >
     <html lang="en" className="dark h-full antialiased">
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <AppQueryProvider>{children}</AppQueryProvider>
+      </body>
     </html>
     </ClerkProvider>
   );

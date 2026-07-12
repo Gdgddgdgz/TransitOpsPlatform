@@ -1,14 +1,24 @@
 "use client";
 
+import { useMemo } from "react";
 import { Route, CheckCircle2, Truck, Gauge } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
-import { getDriverStats, getMyTrips } from "../data/data";
+import { useTrips, useVehicles } from "@/lib/backend-queries";
 import ActiveTripCard from "../components/ActiveTripCard";
 
 export default function DashboardView() {
-  const stats = getDriverStats();
-  const myTrips = getMyTrips();
-  const active = myTrips.find((t) => t.status === "Dispatched");
+  const { data: trips = [] } = useTrips();
+  const { data: vehicles = [] } = useVehicles();
+
+  const stats = useMemo(() => {
+    const active = trips.filter((trip) => trip.status === "Dispatched").length;
+    const completed = trips.filter((trip) => trip.status === "Completed").length;
+    const availableVehicles = vehicles.filter((vehicle) => vehicle.status === "Available").length;
+    const totalDistance = trips.reduce((sum, trip) => sum + trip.actualDistance, 0);
+    return { active, completed, availableVehicles, totalDistance };
+  }, [trips, vehicles]);
+
+  const active = trips.find((trip) => trip.status === "Dispatched");
 
   return (
     <div className="flex flex-col gap-6">

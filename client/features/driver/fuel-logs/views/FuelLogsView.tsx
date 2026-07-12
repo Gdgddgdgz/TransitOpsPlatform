@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Fuel, IndianRupee, Gauge } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
-import { getFuelLogRows, getFuelKpis } from "../data/data";
+import { useFuelLogs } from "@/lib/backend-queries";
 import FuelLogTable from "../components/FuelLogTable";
 import LogFuelForm from "../components/LogFuelForm";
 
 export default function FuelLogsView() {
-  const rows = getFuelLogRows();
-  const kpis = getFuelKpis();
+  const { data: rows = [], isLoading, error } = useFuelLogs();
+  const kpis = useMemo(() => {
+    const totalLiters = rows.reduce((sum, row) => sum + row.liters, 0);
+    const totalCost = rows.reduce((sum, row) => sum + row.cost, 0);
+    const avgCostPerLiter = totalLiters > 0 ? totalCost / totalLiters : 0;
+    return { totalLiters, totalCost, avgCostPerLiter, entries: rows.length };
+  }, [rows]);
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -33,9 +38,15 @@ export default function FuelLogsView() {
         <StatCard label="Avg Cost / Liter" value={`₹${kpis.avgCostPerLiter.toFixed(1)}`} icon={Gauge} accent="var(--color-brand-violet)" />
       </div>
 
+      {error ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          Unable to load fuel logs from the backend right now.
+        </div>
+      ) : null}
+
       {showForm && <LogFuelForm onClose={() => setShowForm(false)} />}
 
-      <FuelLogTable rows={rows} />
+      {isLoading ? <div className="text-sm text-muted-foreground">Loading fuel logs...</div> : <FuelLogTable rows={rows} />}
     </div>
   );
 }

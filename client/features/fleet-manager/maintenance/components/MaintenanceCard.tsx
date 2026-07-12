@@ -2,7 +2,9 @@ import { Wrench, Calendar } from "lucide-react";
 import { badgeClass } from "../../shared/utils/badges";
 import type { MaintenanceLog, Vehicle } from "@/lib/types";
 
-export default function MaintenanceCard({ record }: { record: MaintenanceLog & { vehicle?: Vehicle } }) {
+type MaintenanceRecord = MaintenanceLog & { vehicle?: Partial<Vehicle> };
+
+export default function MaintenanceCard({ record }: { record: MaintenanceRecord }) {
   return (
     <div className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between">

@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { X } from "lucide-react";
-import { addVehicle } from "@/lib/mock-db";
+import { useCreateVehicle } from "@/lib/backend-queries";
 
 export default function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const createVehicle = useCreateVehicle();
+  const [error, setError] = useState<string | null>(null);
+
   if (!open) return null;
 
   return (
@@ -22,6 +26,7 @@ export default function AddVehicleModal({ open, onClose }: { open: boolean; onCl
           className="grid grid-cols-2 gap-4"
           onSubmit={(e) => {
             e.preventDefault();
+            setError(null);
             const target = e.currentTarget;
             const reg = target.elements.namedItem("registrationNumber") as HTMLInputElement;
             const model = target.elements.namedItem("model") as HTMLInputElement;
@@ -29,18 +34,23 @@ export default function AddVehicleModal({ open, onClose }: { open: boolean; onCl
             const maxLoad = target.elements.namedItem("maxLoad") as HTMLInputElement;
             const cost = target.elements.namedItem("cost") as HTMLInputElement;
             const status = target.elements.namedItem("status") as HTMLSelectElement;
-            
-            addVehicle({
-              registrationNumber: reg.value,
-              model: model.value,
-              type: type.value,
-              maxLoadCapacity: Number(maxLoad.value),
-              acquisitionCost: Number(cost.value),
-              status: status.value as any,
-              odometer: 0,
-              region: "West",
-            });
-            onClose();
+
+            createVehicle.mutate(
+              {
+                registrationNumber: reg.value,
+                model: model.value,
+                type: type.value,
+                maxLoadCapacity: Number(maxLoad.value),
+                acquisitionCost: Number(cost.value),
+                status: status.value,
+                odometer: 0,
+                region: "West",
+              },
+              {
+                onSuccess: () => onClose(),
+                onError: () => setError("The vehicle could not be created. Please try again."),
+              },
+            );
           }}
         >
           <div className="col-span-2">
@@ -70,12 +80,13 @@ export default function AddVehicleModal({ open, onClose }: { open: boolean; onCl
               <option>In Shop</option>
             </select>
           </div>
+          {error ? <div className="col-span-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</div> : null}
           <div className="col-span-2 flex justify-end gap-3 mt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-secondary">
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 rounded-lg text-sm font-medium gradient-brand text-primary-foreground">
-              Register Vehicle
+            <button type="submit" disabled={createVehicle.isPending} className="px-4 py-2 rounded-lg text-sm font-medium gradient-brand text-primary-foreground disabled:opacity-60">
+              {createVehicle.isPending ? "Saving..." : "Register Vehicle"}
             </button>
           </div>
         </form>

@@ -2,19 +2,18 @@
 
 import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import { vehicles } from "../data/data";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleTable from "../components/VehicleTable";
 import AddVehicleModal from "../components/AddVehicleModal";
-import { useMockState } from "@/lib/use-mock-state";
+import { useVehicles } from "@/lib/backend-queries";
 
 export default function VehiclesView() {
-  useMockState();
   const [query, setQuery] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
   const [region, setRegion] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+  const { data: vehicles = [], isLoading, error } = useVehicles();
 
   const filtered = useMemo(() => {
     return vehicles.filter((v) => {
@@ -24,7 +23,7 @@ export default function VehiclesView() {
       if (region && v.region !== region) return false;
       return true;
     });
-  }, [query, type, status, region]);
+  }, [query, type, status, region, vehicles]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,7 +31,7 @@ export default function VehiclesView() {
         <div>
           <h1 className="text-2xl font-display font-semibold tracking-tight">Vehicle Registry</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {vehicles.length} vehicles · Registration numbers must be unique · Retired/In Shop excluded from dispatch
+            {isLoading ? "Loading vehicles..." : `${vehicles.length} vehicles`} · Registration numbers must be unique · Retired/In Shop excluded from dispatch
           </p>
         </div>
         <button
@@ -42,6 +41,12 @@ export default function VehiclesView() {
           <Plus className="h-4 w-4" /> Register Vehicle
         </button>
       </div>
+
+      {error ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          Unable to load vehicles from the backend right now.
+        </div>
+      ) : null}
 
       <VehicleFilters
         query={query}

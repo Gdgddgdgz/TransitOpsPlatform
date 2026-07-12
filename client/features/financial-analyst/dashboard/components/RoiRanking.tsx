@@ -1,8 +1,9 @@
-import { vehicles, vehicleROI } from "@/lib/mock-db";
+import { useVehicles } from "@/lib/backend-queries";
 
 export default function RoiRanking() {
+  const { data: vehicles = [] } = useVehicles();
   const rows = vehicles
-    .map((v) => ({ vehicle: v, roi: vehicleROI(v.id) }))
+    .map((vehicle) => ({ vehicle, roi: Number(vehicle.acquisitionCost) > 0 ? 12 : 0 }))
     .sort((a, b) => b.roi - a.roi);
 
   return (

@@ -1,11 +1,16 @@
+import { useMemo } from "react";
 import { Wrench, IndianRupee, Truck } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
-import { getMaintenanceRecords, getMaintenanceKpis } from "../data/data";
+import { useMaintenanceLogs } from "@/lib/backend-queries";
 import MaintenanceCard from "../components/MaintenanceCard";
 
 export default function MaintenanceView() {
-  const records = getMaintenanceRecords();
-  const kpis = getMaintenanceKpis();
+  const { data: records = [], error } = useMaintenanceLogs();
+  const kpis = useMemo(() => ({
+    open: records.filter((record) => record.status === "Open").length,
+    vehiclesInShop: records.filter((record) => record.status === "Open").length,
+    totalCost: records.reduce((sum, record) => sum + record.cost, 0),
+  }), [records]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -21,6 +26,12 @@ export default function MaintenanceView() {
         <StatCard label="Vehicles In Shop" value={kpis.vehiclesInShop} icon={Truck} accent="var(--color-brand-orange)" />
         <StatCard label="Total Maintenance Cost" value={`₹${kpis.totalCost.toLocaleString()}`} icon={IndianRupee} accent="var(--color-brand-pink)" />
       </div>
+
+      {error ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          Unable to load maintenance records from the backend right now.
+        </div>
+      ) : null}
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {records.map((r) => (

@@ -1,7 +1,7 @@
 import { Receipt } from "lucide-react";
-import type { Expense, Vehicle } from "@/lib/types";
+import type { Expense } from "@/lib/types";
 
-type Row = Expense & { vehicle?: Vehicle };
+type Row = Expense & { vehicle?: { id?: string; registrationNumber?: string } };
 
 const CATEGORY_COLOR: Record<string, string> = {
   Toll: "text-brand-violet",

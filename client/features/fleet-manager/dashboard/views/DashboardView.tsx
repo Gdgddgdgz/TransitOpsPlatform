@@ -1,14 +1,36 @@
 "use client";
 
+import { useMemo } from "react";
 import { Truck, CheckCircle2, Wrench, Route, Clock, Users, Gauge } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
-import { getDashboardStats, getFleetByRegion } from "../data/data";
+import { useTrips, useVehicles } from "@/lib/backend-queries";
 import RegionBreakdown from "../components/RegionBreakdown";
 import RecentTrips from "../components/RecentTrips";
 
 export default function DashboardView() {
-  const stats = getDashboardStats();
-  const region = getFleetByRegion();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: trips = [] } = useTrips();
+
+  const stats = useMemo(() => {
+    const activeVehicles = vehicles.filter((vehicle) => vehicle.status !== "Retired").length;
+    const availableVehicles = vehicles.filter((vehicle) => vehicle.status === "Available").length;
+    const inMaintenance = vehicles.filter((vehicle) => vehicle.status === "In Shop").length;
+    const activeTrips = trips.filter((trip) => trip.status === "Dispatched").length;
+    const pendingTrips = trips.filter((trip) => trip.status === "Draft").length;
+    const driversOnDuty = trips.filter((trip) => trip.status === "Dispatched").length;
+    const utilization = activeVehicles > 0 ? Math.round((activeTrips / activeVehicles) * 100) : 0;
+
+    return { activeVehicles, availableVehicles, inMaintenance, activeTrips, pendingTrips, driversOnDuty, utilization };
+  }, [vehicles, trips]);
+
+  const region = useMemo(() => {
+    const totals = new Map<string, number>();
+    vehicles.forEach((vehicle) => {
+      const region = vehicle.region || "Unknown";
+      totals.set(region, (totals.get(region) ?? 0) + 1);
+    });
+    return Array.from(totals.entries()).map(([region, count]) => ({ region, count }));
+  }, [vehicles]);
 
   return (
     <div className="flex flex-col gap-6">
