@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import { getAllTrips } from "../data/data";
+import { useTrips } from "@/lib/backend-queries";
 import TripTable from "../components/TripTable";
 import CreateTripForm from "../components/CreateTripForm";
 
 export default function TripsView() {
-  const trips = getAllTrips();
+  const { data: trips = [], isLoading, error } = useTrips();
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -27,9 +27,15 @@ export default function TripsView() {
         </button>
       </div>
 
+      {error ? (
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          Unable to load trips from the backend right now.
+        </div>
+      ) : null}
+
       {showForm && <CreateTripForm onClose={() => setShowForm(false)} />}
 
-      <TripTable trips={trips} />
+      {isLoading ? <div className="text-sm text-muted-foreground">Loading trips...</div> : <TripTable trips={trips} />}
     </div>
   );
 }

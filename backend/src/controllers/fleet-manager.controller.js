@@ -12,6 +12,11 @@ export const createVehicle = AsyncHandler(async (req, res) => {
   return res.status(201).json(new ApiResponse(201, "Vehicle registered.", vehicle));
 });
 
+export const getMaintenanceLogs = AsyncHandler(async (req, res) => {
+  const logs = await fleetService.getMaintenanceLogs(req.user.organizationId);
+  return res.status(200).json(new ApiResponse(200, "Maintenance logs retrieved.", logs));
+});
+
 export const updateVehicle = AsyncHandler(async (req, res) => {
   const vehicle = await fleetService.updateVehicle(req.user.organizationId, req.params.id, req.body);
   return res.status(200).json(new ApiResponse(200, "Vehicle updated.", vehicle));

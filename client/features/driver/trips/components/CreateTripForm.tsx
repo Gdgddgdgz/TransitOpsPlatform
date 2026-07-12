@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import { getDispatchableVehicles, getDispatchableDrivers } from "../data/data";
+import { useCreateTrip, useDrivers, useVehicles } from "@/lib/backend-queries";
 
 export default function CreateTripForm({ onClose }: { onClose: () => void }) {
-  const vehicles = getDispatchableVehicles();
-  const drivers = getDispatchableDrivers();
+  const { data: vehicles = [] } = useVehicles();
+  const { data: drivers = [] } = useDrivers();
+  const createTrip = useCreateTrip();
 
   const [vehicleId, setVehicleId] = useState("");
   const [driverId, setDriverId] = useState("");
@@ -16,7 +17,9 @@ export default function CreateTripForm({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const selectedVehicle = vehicles.find((v) => v.id === vehicleId);
+  const availableVehicles = vehicles.filter((v) => v.status === "Available");
+  const availableDrivers = drivers.filter((d) => d.status === "Available");
+  const selectedVehicle = availableVehicles.find((v) => v.id === vehicleId);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,8 +36,23 @@ export default function CreateTripForm({ onClose }: { onClose: () => void }) {
       );
       return;
     }
-    setSuccess(true);
-    setTimeout(onClose, 1200);
+
+    createTrip.mutate(
+      {
+        vehicleId,
+        driverId,
+        source,
+        destination,
+        cargoWeight: weight,
+      },
+      {
+        onSuccess: () => {
+          setSuccess(true);
+          setTimeout(onClose, 1200);
+        },
+        onError: () => setError("Unable to create the trip right now."),
+      },
+    );
   }
 
   return (
@@ -71,7 +89,7 @@ export default function CreateTripForm({ onClose }: { onClose: () => void }) {
             className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Select available vehicle</option>
-            {vehicles.map((v) => (
+            {availableVehicles.map((v) => (
               <option key={v.id} value={v.id}>
                 {v.registrationNumber} — max {v.maxLoadCapacity} kg
               </option>
@@ -86,7 +104,7 @@ export default function CreateTripForm({ onClose }: { onClose: () => void }) {
             className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="">Select available driver</option>
-            {drivers.map((d) => (
+            {availableDrivers.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.name} — {d.licenseCategory}
               </option>
@@ -120,8 +138,8 @@ export default function CreateTripForm({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-secondary">
             Cancel
           </button>
-          <button type="submit" className="px-4 py-2 rounded-lg text-sm font-medium gradient-cool text-accent-foreground">
-            Create Trip
+          <button type="submit" disabled={createTrip.isPending} className="px-4 py-2 rounded-lg text-sm font-medium gradient-cool text-accent-foreground disabled:opacity-60">
+            {createTrip.isPending ? "Creating..." : "Create Trip"}
           </button>
         </div>
       </form>

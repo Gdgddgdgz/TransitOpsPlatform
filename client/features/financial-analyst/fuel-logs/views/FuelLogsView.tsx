@@ -1,10 +1,18 @@
-import { getFuelRows, getFuelCostByVehicle } from "../data/data";
+import { useMemo } from "react";
+import { useFuelLogs } from "@/lib/backend-queries";
 import FuelCostByVehicle from "../components/FuelCostByVehicle";
 import FuelLogTable from "../components/FuelLogTable";
 
 export default function FuelLogsView() {
-  const rows = getFuelRows();
-  const byVehicle = getFuelCostByVehicle();
+  const { data: rows = [] } = useFuelLogs();
+  const byVehicle = useMemo(() => {
+    const map = new Map<string, number>();
+    rows.forEach((row) => {
+      const vehicleLabel = row.vehicle?.registrationNumber ?? "Unassigned";
+      map.set(vehicleLabel, (map.get(vehicleLabel) ?? 0) + row.cost);
+    });
+    return Array.from(map.entries()).map(([reg, cost]) => ({ reg, cost }));
+  }, [rows]);
 
   return (
     <div className="flex flex-col gap-6">

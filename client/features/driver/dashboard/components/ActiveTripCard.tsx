@@ -1,8 +1,10 @@
 import { ArrowRight, MapPin, Package } from "lucide-react";
 import { badgeClass } from "../../shared/utils/badges";
-import type { Trip, Vehicle } from "@/lib/types";
+import type { Trip } from "@/lib/types";
 
-export default function ActiveTripCard({ trip }: { trip: (Trip & { vehicle?: Vehicle }) | undefined }) {
+type ActiveTrip = Trip & { vehicle?: { id?: string; registrationNumber?: string; model?: string; type?: string } };
+
+export default function ActiveTripCard({ trip }: { trip: ActiveTrip | undefined }) {
   if (!trip) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">

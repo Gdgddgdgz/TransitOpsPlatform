@@ -1,14 +1,32 @@
 "use client";
 
+import { useMemo } from "react";
 import { Download } from "lucide-react";
-import { getVehicleReportRows, toCsv } from "../data/data";
+import { useReportMetrics, useVehicles } from "@/lib/backend-queries";
 import ReportTable from "../components/ReportTable";
 
 export default function ReportsView() {
-  const rows = getVehicleReportRows();
+  const { data: metrics } = useReportMetrics();
+  const { data: vehicles = [] } = useVehicles();
+
+  const rows = useMemo(() => {
+    const items = metrics?.vehicleMetrics ?? [];
+    return items.map((item: any) => ({
+      vehicle: {
+        id: item.vehicleId,
+        registrationNumber: item.registrationNumber,
+        model: item.model,
+      },
+      distance: Number(item.totalDistance ?? 0),
+      efficiency: Number(item.fuelEfficiency ?? 0),
+      opCost: Number(item.totalOpCost ?? 0),
+      revenue: Number(item.totalRevenue ?? 0),
+      roi: Number(item.roi ?? 0),
+    }));
+  }, [metrics]);
 
   function handleExport() {
-    const csv = toCsv(rows);
+    const csv = rows.map((row: { vehicle: { registrationNumber: string }; distance: number; efficiency: number; opCost: number; revenue: number; roi: number }) => `${row.vehicle.registrationNumber},${row.distance},${row.efficiency},${row.opCost},${row.revenue},${row.roi}`).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

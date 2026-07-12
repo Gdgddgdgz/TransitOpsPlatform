@@ -18,6 +18,7 @@ router.route("/vehicles/:id")
   .delete(fleetController.deleteVehicle);
 
 router.route("/maintenance")
+  .get(fleetController.getMaintenanceLogs)
   .post(fleetController.createMaintenanceLog);
 
 router.route("/maintenance/:id/close")

@@ -1,8 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { badgeClass } from "../../shared/utils/badges";
-import type { Trip, Vehicle, Driver } from "@/lib/types";
+import type { Trip } from "@/lib/types";
 
-type Row = Trip & { vehicle?: Vehicle; driver?: Driver };
+type Row = Trip & { vehicle?: { id?: string; registrationNumber?: string; model?: string; type?: string }; driver?: { id?: string; name?: string } };
 
 export default function TripTable({ trips }: { trips: Row[] }) {
   return (

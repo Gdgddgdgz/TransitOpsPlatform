@@ -1,6 +1,6 @@
-import type { RegionSlice } from "../data/data";
-
 const COLORS = ["var(--color-brand-orange)", "var(--color-brand-cyan)", "var(--color-brand-lime)", "var(--color-brand-violet)"];
+
+type RegionSlice = { region: string; count: number };
 
 export default function RegionBreakdown({ data }: { data: RegionSlice[] }) {
   const max = Math.max(...data.map((d) => d.count), 1);
