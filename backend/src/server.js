@@ -10,11 +10,11 @@ app.use(clerkMiddleware())
 app.use(express.json())
 
 import userRouter from './routes/user.routes.js'
-import adminRouter from './service/admin.route.js'
-import fleetRouter from './service/fleet-manager.route.js'
-import driverRouter from './service/driver.route.js'
-import safetyRouter from './service/safety-officer.route.js'
-import financialRouter from './service/financial-analyst.route.js'
+import adminRouter from './routes/admin.route.js'
+import fleetRouter from './routes/fleet-manager.route.js'
+import driverRouter from './routes/driver.route.js'
+import safetyRouter from './routes/safety-officer.route.js'
+import financialRouter from './routes/financial-analyst.route.js'
 
 app.use("/api/v1/me", userRouter)
 app.use("/api/v1/admin", adminRouter)

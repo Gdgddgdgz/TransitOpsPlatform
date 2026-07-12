@@ -1,7 +1,7 @@
 import express from "express";
-import { authUser } from "../../middleware/authUser.js";
-import { checkRolesAllowed } from "../../middleware/checkRolesAllowed.js";
-import * as driverController from "../service/driver.controller.js";
+import { authUser } from "../middleware/authUser.js";
+import { checkRolesAllowed } from "../middleware/checkRolesAllowed.js";
+import * as driverController from "../controllers/driver.controller.js";
 
 const router = express.Router();
 
