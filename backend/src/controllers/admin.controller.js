@@ -1,6 +1,7 @@
 import { clerkClient, getAuth } from "@clerk/express";
 import { prisma } from "../config/prisma.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
+import ApiError from "../utils/ApiError.js";
 
 export const setupOrganization = AsyncHandler(async (req, res) => {
   const { userId, orgId, isAuthenticated } = getAuth(req);

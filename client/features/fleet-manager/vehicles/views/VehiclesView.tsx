@@ -6,7 +6,7 @@ import { vehicles } from "../data/data";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleTable from "../components/VehicleTable";
 import AddVehicleModal from "../components/AddVehicleModal";
-import { useMockState } from "@/lib/mock-db";
+import { useMockState } from "@/lib/use-mock-state";
 
 export default function VehiclesView() {
   useMockState();

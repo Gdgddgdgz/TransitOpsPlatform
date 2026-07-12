@@ -10,7 +10,18 @@ app.use(clerkMiddleware())
 app.use(express.json())
 
 import userRouter from './routes/user.routes.js'
+import adminRouter from './service/admin.route.js'
+import fleetRouter from './service/fleet-manager.route.js'
+import driverRouter from './service/driver.route.js'
+import safetyRouter from './service/safety-officer.route.js'
+import financialRouter from './service/financial-analyst.route.js'
+
 app.use("/api/v1/me", userRouter)
+app.use("/api/v1/admin", adminRouter)
+app.use("/api/v1/fleet", fleetRouter)
+app.use("/api/v1/driver", driverRouter)
+app.use("/api/v1/safety", safetyRouter)
+app.use("/api/v1/financial", financialRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {

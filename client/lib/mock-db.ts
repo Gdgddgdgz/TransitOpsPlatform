@@ -111,20 +111,8 @@ export function daysUntil(dateStr: string) {
 }
 
 // ---- Global State Notification System ----
-import { useState, useEffect } from "react";
+export const listeners = new Set<() => void>();
 
-const listeners = new Set<() => void>();
-
-export function useMockState() {
-  const [, setVersion] = useState(0);
-  useEffect(() => {
-    const handler = () => setVersion((v) => v + 1);
-    listeners.add(handler);
-    return () => {
-      listeners.delete(handler);
-    };
-  }, []);
-}
 
 export function notifyDataChanged() {
   listeners.forEach((listener) => {
