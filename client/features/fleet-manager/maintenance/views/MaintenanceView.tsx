@@ -1,12 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
-import { Wrench, IndianRupee, Truck } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Wrench, IndianRupee, Truck, Plus } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
 import { useMaintenanceLogs } from "@/lib/backend-queries";
 import MaintenanceCard from "../components/MaintenanceCard";
+import CreateMaintenanceModal from "../components/CreateMaintenanceModal";
 
 export default function MaintenanceView() {
+  const [modalOpen, setModalOpen] = useState(false);
   const { data: records = [], error } = useMaintenanceLogs();
   const kpis = useMemo(() => ({
     open: records.filter((record) => record.status === "Open").length,
@@ -16,11 +18,19 @@ export default function MaintenanceView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-display font-semibold tracking-tight">Maintenance</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Opening a record moves the vehicle to In Shop and hides it from dispatch. Closing restores it to Available.
-        </p>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-display font-semibold tracking-tight">Maintenance</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Opening a record moves the vehicle to In Shop and hides it from dispatch. Closing restores it to Available.
+          </p>
+        </div>
+        <button
+          onClick={() => setModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium gradient-brand text-primary-foreground glow"
+        >
+          <Plus className="h-4 w-4" /> Open Record
+        </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -40,6 +50,8 @@ export default function MaintenanceView() {
           <MaintenanceCard key={r.id} record={r} />
         ))}
       </div>
+
+      <CreateMaintenanceModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

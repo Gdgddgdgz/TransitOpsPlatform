@@ -71,6 +71,10 @@ export const deleteVehicle = async (organizationId, id) => {
 };
 
 export const createMaintenanceLog = async (organizationId, createdById, data) => {
+  if (!data.vehicleId) {
+    throw new ApiError(400, "Vehicle is required.");
+  }
+
   const vehicle = await prisma.vehicle.findFirst({
     where: { id: data.vehicleId, organizationId },
   });
@@ -78,16 +82,29 @@ export const createMaintenanceLog = async (organizationId, createdById, data) =>
     throw new ApiError(404, "Vehicle not found.");
   }
 
+  if (vehicle.status === "RETIRED") {
+    throw new ApiError(400, "Cannot open a maintenance record for a retired vehicle.");
+  }
+
+  const cost = data.cost !== undefined && data.cost !== null ? Number(data.cost) : null;
+  if (cost !== null && (!Number.isFinite(cost) || cost < 0)) {
+    throw new ApiError(400, "Cost must be a non-negative number.");
+  }
+
   // Transaction to create log and change vehicle status to IN_SHOP
   return await prisma.$transaction(async (tx) => {
     const log = await tx.maintenanceLog.create({
       data: {
-        ...data,
+        vehicleId: data.vehicleId,
+        title: data.title,
+        description: data.description,
+        cost: cost ?? undefined,
         organizationId,
         createdById,
         status: "OPEN",
         openedAt: new Date(),
       },
+      include: { vehicle: true },
     });
 
     await tx.vehicle.update({
