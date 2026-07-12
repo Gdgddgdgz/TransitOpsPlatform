@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/axios";
 import { Loader2 } from "lucide-react";
 
 export default function AdminSetupPage() {
@@ -25,8 +25,8 @@ export default function AdminSetupPage() {
         
         // This endpoint doesn't strictly need authUser middleware according to comments,
         // but it uses getAuth(req) so it needs the token in the request header.
-        await axios.post(
-          "http://localhost:5000/api/v1/admin/setup",
+        await api.post(
+          "/admin/setup",
           {},
           {
             headers: {

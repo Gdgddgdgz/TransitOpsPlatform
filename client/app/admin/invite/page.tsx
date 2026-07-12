@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import axios from "axios";
+import api from "@/lib/axios";
 import { Loader2, Mail, ShieldAlert, CheckCircle2 } from "lucide-react";
 import AdminLayout from "@/features/admin/shared/components/AdminLayout";
 
@@ -27,8 +27,8 @@ export default function InvitePage() {
 
     try {
       const token = await getToken();
-      await axios.post(
-        "http://localhost:5000/api/v1/admin/invite",
+      await api.post(
+        "/admin/invite",
         { email, role },
         {
           headers: {
