@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, LogOut, Shield } from "lucide-react";
+import { LayoutDashboard, LogOut, Shield, UserPlus, Users, Truck, Wrench, ShieldCheck, LineChart } from "lucide-react";
 import { NAV_ITEMS, ROLE_SLUG } from "../types";
 
 const ICONS: Record<string, typeof LayoutDashboard> = {
   LayoutDashboard,
+  UserPlus,
+  Users,
+  Truck,
+  Wrench,
+  ShieldCheck,
+  LineChart,
 };
 
 export default function Sidebar() {
@@ -27,7 +33,7 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-3 py-5 flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
-          const href = item.href ? `${base}/${item.href}` : base;
+          const href = item.href.startsWith("/") ? item.href : (item.href ? `${base}/${item.href}` : base);
           const active = pathname === href;
           const Icon = ICONS[item.icon];
           return (
