@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TransitOps — Smart Transport Operations Platform
 
-## Getting Started
+Next.js (App Router) implementation of the TransitOps hackathon brief, built with role-based
+workspaces and a fully modular feature-first architecture, using sample/mock data derived from
+the provided ER diagram.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 and pick a role. No auth is wired up (per the "demo/mock data" scope) —
+each role is a self-contained workspace at `/fleet-manager`, `/driver`, `/safety-officer`, `/financial-analyst`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Roles & pages
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Fleet Manager** — Dashboard (KPIs, region/utilization), Vehicle Registry (filters, register vehicle),
+  Maintenance (open/closed records, auto vehicle status logic described in UI), Reports (fuel efficiency,
+  op cost, ROI, CSV export).
+- **Driver** — Dashboard (active trip, stats), Trips (create trip with cargo-vs-capacity + availability
+  validation), Fuel Logs (log fuel, totals).
+- **Safety Officer** — Dashboard (compliance KPIs, expiring licenses, lowest safety scores), Driver
+  Profiles (filterable table), Compliance (expiry timeline sorted by urgency).
+- **Financial Analyst** — Dashboard (revenue, cost breakdown, ROI ranking), Expenses (category totals +
+  table), Fuel Logs (cost by vehicle), Reports (ROI table, CSV export).
 
-## Learn More
+## Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+app/<role>/page.tsx                     route -> role dashboard
+app/<role>/<page-name>/page.tsx         route -> role sub-page
+features/<role>/shared/                 Sidebar, Navbar, <Role>Layout, StatCard, types, badge map, current user
+features/<role>/<page-name>/data        mock data + interfaces for that page
+features/<role>/<page-name>/components  one file per visual block
+features/<role>/<page-name>/views       composes components, owns page state
+lib/types.ts, lib/mock-db.ts            shared entity types + single source of sample data (ER model)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Design system
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Dark charcoal canvas with vibrant orange/cyan/lime/violet accents, driven entirely by the CSS custom
+properties in `app/globals.css` (Tailwind v4 `@theme inline`), matching the provided design tokens.

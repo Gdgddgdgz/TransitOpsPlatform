@@ -1,5 +1,5 @@
 import { clerkClient, getAuth } from "@clerk/express";
-import { prisma } from "../config/prisma";
+import { prisma } from "../config/prisma.js";
 
 export const authUser = async (req, res, next) => {
   try {

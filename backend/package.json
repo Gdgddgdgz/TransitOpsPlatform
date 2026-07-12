@@ -4,17 +4,22 @@
   "description": "",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@clerk/express": "^2.1.40",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "pg": "^8.22.0",
     "prisma": "^7.8.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0"
   }
 }
