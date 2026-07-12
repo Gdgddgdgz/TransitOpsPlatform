@@ -11,19 +11,24 @@ export default function VehiclesView() {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");
-  const [region, setRegion] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const { data: vehicles = [], isLoading, error } = useVehicles();
 
+  // Derive unique types from real backend data
+  const vehicleTypes = useMemo(
+    () => Array.from(new Set(vehicles.map((v) => v.type).filter(Boolean))),
+    [vehicles]
+  );
+
   const filtered = useMemo(() => {
     return vehicles.filter((v) => {
-      if (query && !`${v.registrationNumber} ${v.model}`.toLowerCase().includes(query.toLowerCase())) return false;
+      if (query && !`${v.registrationNumber} ${v.model}`.toLowerCase().includes(query.toLowerCase()))
+        return false;
       if (type && v.type !== type) return false;
       if (status && v.status !== status) return false;
-      if (region && v.region !== region) return false;
       return true;
     });
-  }, [query, type, status, region, vehicles]);
+  }, [query, type, status, vehicles]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,7 +36,10 @@ export default function VehiclesView() {
         <div>
           <h1 className="text-2xl font-display font-semibold tracking-tight">Vehicle Registry</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLoading ? "Loading vehicles..." : `${vehicles.length} vehicles`} · Registration numbers must be unique · Retired/In Shop excluded from dispatch
+            {isLoading
+              ? "Loading vehicles..."
+              : `${vehicles.length} vehicles`}{" "}
+            · Registration numbers must be unique · Retired/In Shop excluded from dispatch
           </p>
         </div>
         <button
@@ -52,11 +60,10 @@ export default function VehiclesView() {
         query={query}
         type={type}
         status={status}
-        region={region}
+        vehicleTypes={vehicleTypes}
         onQueryChange={setQuery}
         onTypeChange={setType}
         onStatusChange={setStatus}
-        onRegionChange={setRegion}
       />
 
       <VehicleTable vehicles={filtered} />

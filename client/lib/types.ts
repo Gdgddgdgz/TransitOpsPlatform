@@ -1,23 +1,31 @@
-// Core domain types derived from the TransitOps ER model
+// Core domain types derived from the TransitOps schema
 
 export type VehicleStatus = "Available" | "On Trip" | "In Shop" | "Retired";
 export type DriverStatus = "Available" | "On Trip" | "Off Duty" | "Suspended";
 export type TripStatus = "Draft" | "Dispatched" | "Completed" | "Cancelled";
-export type MaintenanceStatus = "Open" | "In Progress" | "Closed";
-export type ExpenseCategory = "Toll" | "Maintenance" | "Parking" | "Fine" | "Other";
-export type Role = "fleet-manager" | "driver" | "safety-officer" | "financial-analyst" | "admin";
+// Schema only has OPEN | CLOSED — "In Progress" does not exist
+export type MaintenanceStatus = "Open" | "Closed";
+// Schema: TOLL | REPAIR | INSURANCE | OTHER
+export type ExpenseCategory = "Toll" | "Repair" | "Insurance" | "Other" | "Maintenance" | "Parking" | "Fine";
+export type Role = "FLEET_MANAGER" | "DISPATCHER" | "DRIVER" | "SAFETY_OFFICER" | "FINANCIAL_ANALYST" | "ADMIN";
 
 export interface Organization {
   id: string;
+  clerkOrgId: string;
   name: string;
 }
 
 export interface AppUser {
   id: string;
+  clerkUserId?: string;
+  organizationId?: string;
   name: string;
   email: string;
   role: Role;
-  avatarColor: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  avatarColor?: string;
 }
 
 export interface Vehicle {
@@ -29,7 +37,7 @@ export interface Vehicle {
   odometer: number; // km
   acquisitionCost: number;
   status: VehicleStatus;
-  region: string;
+  region?: string;
 }
 
 export interface Driver {
@@ -61,6 +69,8 @@ export interface Trip {
   plannedEnd: string;
   dispatchedAt?: string;
   completedAt?: string;
+  vehicle?: { id: string; registrationNumber: string; model: string; type: string };
+  driver?: { id: string; name: string };
 }
 
 export interface MaintenanceLog {
@@ -72,6 +82,7 @@ export interface MaintenanceLog {
   status: MaintenanceStatus;
   openedAt: string;
   closedAt?: string;
+  vehicle?: { id: string; registrationNumber: string; model: string; type: string };
 }
 
 export interface FuelLog {
@@ -81,14 +92,16 @@ export interface FuelLog {
   liters: number;
   cost: number;
   fuelDate: string;
+  vehicle?: { id: string; registrationNumber: string };
 }
 
 export interface Expense {
   id: string;
-  vehicleId: string;
+  vehicleId?: string;
   tripId?: string;
   category: ExpenseCategory;
   amount: number;
   description: string;
   expenseDate: string;
+  vehicle?: { id: string; registrationNumber: string };
 }

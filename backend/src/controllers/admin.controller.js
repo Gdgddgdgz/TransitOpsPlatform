@@ -116,3 +116,19 @@ export const inviteUser = AsyncHandler(async (req, res) => {
     data: user,
   });
 });
+
+export const getUsers = AsyncHandler(async (req, res) => {
+  const organization = req.user.organization;
+
+  const users = await prisma.user.findMany({
+    where: {
+      organizationId: organization.id,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return res.status(200).json({
+    success: true,
+    data: users,
+  });
+});

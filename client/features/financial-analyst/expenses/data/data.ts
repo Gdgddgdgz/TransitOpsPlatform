@@ -1,7 +1,7 @@
 import { expenses, getVehicle } from "@/lib/mock-db";
 
 export function getExpenseRows() {
-  return expenses.map((e) => ({ ...e, vehicle: getVehicle(e.vehicleId) }));
+  return expenses.map((e) => ({ ...e, vehicle: getVehicle(e.vehicleId || "") }));
 }
 
 export const EXPENSE_CATEGORIES = Array.from(new Set(expenses.map((e) => e.category)));

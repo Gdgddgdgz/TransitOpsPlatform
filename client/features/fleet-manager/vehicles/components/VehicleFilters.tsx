@@ -1,14 +1,13 @@
-import { VEHICLE_TYPES, VEHICLE_STATUSES, VEHICLE_REGIONS } from "../data/data";
+const VEHICLE_STATUSES = ["Available", "On Trip", "In Shop", "Retired"] as const;
 
 interface Props {
   type: string;
   status: string;
-  region: string;
   query: string;
   onTypeChange: (v: string) => void;
   onStatusChange: (v: string) => void;
-  onRegionChange: (v: string) => void;
   onQueryChange: (v: string) => void;
+  vehicleTypes: string[];
 }
 
 function Select({
@@ -47,9 +46,18 @@ export default function VehicleFilters(props: Props) {
         placeholder="Search registration or model..."
         className="flex-1 min-w-[200px] rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
       />
-      <Select value={props.type} onChange={props.onTypeChange} options={VEHICLE_TYPES} placeholder="All Types" />
-      <Select value={props.status} onChange={props.onStatusChange} options={[...VEHICLE_STATUSES]} placeholder="All Statuses" />
-      <Select value={props.region} onChange={props.onRegionChange} options={VEHICLE_REGIONS} placeholder="All Regions" />
+      <Select
+        value={props.type}
+        onChange={props.onTypeChange}
+        options={props.vehicleTypes}
+        placeholder="All Types"
+      />
+      <Select
+        value={props.status}
+        onChange={props.onStatusChange}
+        options={[...VEHICLE_STATUSES]}
+        placeholder="All Statuses"
+      />
     </div>
   );
 }

@@ -23,6 +23,9 @@ export const authUser = async (req, res, next) => {
       });
     }
 
+    // Debug: log what we're looking up so mismatches are visible in the terminal
+    console.log(`[authUser] Looking up user: email="${email}", orgId="${orgId}"`);
+
     let user = await prisma.user.findFirst({
       where: {
         email,
@@ -36,9 +39,10 @@ export const authUser = async (req, res, next) => {
     });
 
     if (!user) {
+      console.warn(`[authUser] 403 — no DB user found for email="${email}" in org clerkOrgId="${orgId}". Run POST /api/v1/admin/setup to seed the DB.`);
       return res.status(403).json({
         success: false,
-        message: "You are not a member of this organization.",
+        message: "You are not a member of this organization. Visit /admin/setup to initialize your account.",
       });
     }
 

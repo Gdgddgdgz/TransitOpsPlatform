@@ -14,7 +14,7 @@ export default function DashboardView() {
     const active = trips.filter((trip) => trip.status === "Dispatched").length;
     const completed = trips.filter((trip) => trip.status === "Completed").length;
     const availableVehicles = vehicles.filter((vehicle) => vehicle.status === "Available").length;
-    const totalDistance = trips.reduce((sum, trip) => sum + trip.actualDistance, 0);
+    const totalDistance = trips.reduce((sum, trip) => sum + (trip.actualDistance || 0), 0);
     return { active, completed, availableVehicles, totalDistance };
   }, [trips, vehicles]);
 

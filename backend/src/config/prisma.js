@@ -1,11 +1,12 @@
-import pg from "pg";
+import "dotenv/config"; // Must be first — static imports are hoisted in ESM
+import { PrismaClient } from "../../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../../generated/prisma/index.js";
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
 
 const globalForPrisma = globalThis;
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
 
 const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
 

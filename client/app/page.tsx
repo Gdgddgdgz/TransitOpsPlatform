@@ -20,7 +20,7 @@ export default function Home() {
       }
 
       try {
-        const token = await getToken();
+        const token = await getToken({ skipCache: true });
         
         // Fetch user from backend to get their role
         const res = await axios.get("http://localhost:5000/api/v1/me", {
@@ -55,7 +55,7 @@ export default function Home() {
       } catch (err: any) {
         console.error("Error fetching user role:", err);
         // If 401 or 404, maybe they need to set up their organization or sign in again
-        if (err.response?.status === 404 || err.response?.status === 401) {
+        if (err.response?.status === 404 || err.response?.status === 401 || err.response?.status === 403) {
             router.push("/auth/create-organization");
         }
       }
