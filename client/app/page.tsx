@@ -1,34 +1,41 @@
 import Link from "next/link";
-import { Truck, Wrench, ShieldCheck, LineChart, ArrowUpRight } from "lucide-react";
+import { Truck, Wrench, ShieldCheck, LineChart, ArrowUpRight, LayoutDashboard } from "lucide-react";
 
 const roles = [
+  {
+    slug: "admin",
+    label: "Admin Dashboard",
+    desc: "Aggregate KPIs across all roles (fleet, safety, compliance, and financials).",
+    icon: LayoutDashboard,
+    accent: "var(--color-brand-orange)",
+  },
   {
     slug: "fleet-manager",
     label: "Fleet Manager",
     desc: "Oversee fleet assets, maintenance, and operational efficiency.",
     icon: Truck,
-    accent: "var(--color-brand-orange)",
+    accent: "var(--color-brand-cyan)",
   },
   {
     slug: "driver",
     label: "Driver",
     desc: "Create trips, dispatch vehicles, and track active deliveries.",
     icon: Wrench,
-    accent: "var(--color-brand-cyan)",
+    accent: "var(--color-brand-lime)",
   },
   {
     slug: "safety-officer",
     label: "Safety Officer",
     desc: "Monitor license validity, compliance, and driver safety scores.",
     icon: ShieldCheck,
-    accent: "var(--color-brand-lime)",
+    accent: "var(--color-brand-violet)",
   },
   {
     slug: "financial-analyst",
     label: "Financial Analyst",
     desc: "Review operational expenses, fuel costs, and vehicle ROI.",
     icon: LineChart,
-    accent: "var(--color-brand-violet)",
+    accent: "var(--color-brand-orange)",
   },
 ];
 

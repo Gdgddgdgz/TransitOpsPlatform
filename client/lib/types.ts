@@ -5,7 +5,7 @@ export type DriverStatus = "Available" | "On Trip" | "Off Duty" | "Suspended";
 export type TripStatus = "Draft" | "Dispatched" | "Completed" | "Cancelled";
 export type MaintenanceStatus = "Open" | "In Progress" | "Closed";
 export type ExpenseCategory = "Toll" | "Maintenance" | "Parking" | "Fine" | "Other";
-export type Role = "fleet-manager" | "driver" | "safety-officer" | "financial-analyst";
+export type Role = "fleet-manager" | "driver" | "safety-officer" | "financial-analyst" | "admin";
 
 export interface Organization {
   id: string;

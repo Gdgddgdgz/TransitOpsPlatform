@@ -17,6 +17,7 @@ enum UserRole {
   DRIVER
   SAFETY_OFFICER
   FINANCIAL_ANALYST
+  ADMIN
 }
 
 enum DriverStatus {
