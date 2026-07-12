@@ -2,16 +2,12 @@
 
 import { Search, Bell, Menu } from "lucide-react";
 import { useState } from "react";
-import { CURRENT_USER } from "../data/current-user";
-import { ROLE_LABEL, NAV_ITEMS } from "../types";
+import { UserButton } from "@clerk/nextjs";
+import { NAV_ITEMS } from "../types";
 import Link from "next/link";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const initials = CURRENT_USER.name
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
 
   return (
     <header className="sticky top-0 z-20 h-16 border-b border-border bg-background/90 backdrop-blur flex items-center gap-4 px-4 lg:px-8">
@@ -44,16 +40,7 @@ export default function Navbar() {
           <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
         </button>
         <div className="flex items-center gap-2.5 pl-3 border-l border-border">
-          <div
-            className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold text-background"
-            style={{ backgroundColor: CURRENT_USER.avatarColor }}
-          >
-            {initials}
-          </div>
-          <div className="hidden sm:block leading-tight">
-            <p className="text-sm font-medium">{CURRENT_USER.name}</p>
-            <p className="text-[11px] text-muted-foreground">Safety Officer</p>
-          </div>
+          <UserButton />
         </div>
       </div>
 

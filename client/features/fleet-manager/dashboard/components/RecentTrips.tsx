@@ -1,17 +1,18 @@
-import { useTrips } from "@/lib/backend-queries";
+"use client";
+
+import { useRecentTrips } from "@/lib/backend-queries";
 import { badgeClass } from "../../shared/utils/badges";
 import { ArrowRight } from "lucide-react";
 
 export default function RecentTrips() {
-  const { data: trips = [] } = useTrips();
-  const recent = [...trips].slice(0, 5);
+  const { data: trips = [] } = useRecentTrips(5);
   return (
     <div className="rounded-2xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-display font-semibold text-sm">Recent Trips</h3>
       </div>
       <div className="space-y-1">
-        {recent.map((t) => {
+        {trips.map((t) => {
           return (
             <div key={t.id} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
               <div className="flex-1 min-w-0">

@@ -1,10 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import type {
   AppUser,
   DriverStatus,
   ExpenseCategory,
+  FinancialDashboard,
   MaintenanceStatus,
   TripStatus,
   Vehicle,
@@ -394,6 +395,41 @@ export function useCancelTrip() {
   });
 }
 
+// ─── Recent Trips (Fleet Dashboard) ───────────────────────────────────────────
+
+export function useRecentTrips(limit = 5) {
+  const api = useApi();
+  return useQuery({
+    queryKey: ["recent-trips", limit],
+    queryFn: async () => {
+      const response = await api.get<{ data: any[] }>(`/fleet/recent-trips?limit=${limit}`);
+      return (response.data || []).map((trip: any) => ({
+        id: trip.id,
+        tripNumber: trip.tripNumber,
+        vehicleId: trip.vehicleId,
+        driverId: trip.driverId,
+        source: trip.source ?? "N/A",
+        destination: trip.destination ?? "N/A",
+        status: normalizeTripStatus(trip.status),
+        vehicle: trip.vehicle
+          ? {
+              id: trip.vehicle.id,
+              registrationNumber: trip.vehicle.registrationNumber,
+              model: trip.vehicle.model ?? "N/A",
+              type: trip.vehicle.type ?? "N/A",
+            }
+          : undefined,
+        driver: trip.driver
+          ? {
+              id: trip.driver.id,
+              name: trip.driver.user?.name || trip.driver.name || "Unknown",
+            }
+          : undefined,
+      }));
+    },
+  });
+}
+
 // ─── Fuel Logs ────────────────────────────────────────────────────────────────
 
 export function useFuelLogs() {
@@ -469,6 +505,72 @@ export function useCreateExpense() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses"] });
+    },
+  });
+}
+
+// ─── Financial Dashboard ──────────────────────────────────────────────────────
+
+export function useFinancialDashboard(): UseQueryResult<FinancialDashboard, Error> {
+  const api = useApi();
+  return useQuery<FinancialDashboard, Error>({
+    queryKey: ["financial-dashboard"],
+    queryFn: async () => {
+      const response = await api.get<{ data: any }>("/financial/dashboard");
+      const data = response.data ?? {};
+      return {
+        trips: (data.trips || []).map((trip: any) => ({
+          id: trip.id,
+          tripNumber: trip.tripNumber,
+          vehicleId: trip.vehicleId,
+          driverId: trip.driverId,
+          source: trip.source ?? "N/A",
+          destination: trip.destination ?? "N/A",
+          cargoWeight: toNumber(trip.cargoWeight),
+          plannedDistance: toNumber(trip.plannedDistance),
+          actualDistance: trip.actualDistance != null ? toNumber(trip.actualDistance) : undefined,
+          revenue: toNumber(trip.revenue),
+          status: normalizeTripStatus(trip.status),
+          plannedStart: trip.plannedStart ?? "",
+          plannedEnd: trip.plannedEnd ?? "",
+          dispatchedAt: trip.dispatchedAt ?? undefined,
+          completedAt: trip.completedAt ?? undefined,
+          vehicle: trip.vehicle
+            ? {
+                id: trip.vehicle.id,
+                registrationNumber: trip.vehicle.registrationNumber,
+                model: trip.vehicle.model ?? "N/A",
+                type: trip.vehicle.type ?? "N/A",
+              }
+            : undefined,
+          driver: trip.driver
+            ? {
+                id: trip.driver.id,
+                name: trip.driver.user?.name || trip.driver.name || "Unknown",
+              }
+            : undefined,
+        })),
+        vehicleMetrics: (data.vehicleMetrics || []).map((v: any) => ({
+          id: v.id,
+          registrationNumber: v.registrationNumber,
+          model: v.model ?? "N/A",
+          type: v.type ?? "N/A",
+          region: v.region ?? "Unknown",
+          status: normalizeVehicleStatus(v.status),
+          acquisitionCost: toNumber(v.acquisitionCost),
+          totalFuelCost: toNumber(v.totalFuelCost),
+          totalMaintenanceCost: toNumber(v.totalMaintenanceCost),
+          totalRevenue: toNumber(v.totalRevenue),
+          totalOpCost: toNumber(v.totalOpCost),
+          roi: toNumber(v.roi),
+        })),
+        totals: {
+          totalRevenue: toNumber(data.totals?.totalRevenue),
+          totalFuelCost: toNumber(data.totals?.totalFuelCost),
+          totalMaintenanceCost: toNumber(data.totals?.totalMaintenanceCost),
+          avgROI: toNumber(data.totals?.avgROI),
+        },
+      };
     },
   });
 }

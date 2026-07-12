@@ -6,17 +6,25 @@ import * as financialController from "../controllers/financial-analyst.controlle
 const router = express.Router();
 
 router.use(authUser);
-router.use(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN"));
 
+// Fuel logs can also be created/viewed by drivers
 router.route("/fuel")
-  .get(financialController.getFuelLogs)
-  .post(financialController.createFuelLog);
+  .get(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN", "DRIVER"), financialController.getFuelLogs)
+  .post(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN", "DRIVER"), financialController.createFuelLog);
+
+// Dashboard metrics for financial analyst overview
+router.route("/dashboard")
+  .get(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN"), financialController.getDashboardMetrics);
+
+// Reports are also relevant to fleet managers
+router.route("/reports")
+  .get(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN", "FLEET_MANAGER"), financialController.getReportMetrics);
+
+// Remaining financial routes are restricted to financial analysts and admins
+router.use(checkRolesAllowed("FINANCIAL_ANALYST", "ADMIN"));
 
 router.route("/expenses")
   .get(financialController.getExpenses)
   .post(financialController.createExpense);
-
-router.route("/reports")
-  .get(financialController.getReportMetrics);
 
 export default router;

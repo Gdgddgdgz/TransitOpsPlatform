@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import axios from "axios";
 import { useCreateFuelLog, useVehicles } from "@/lib/backend-queries";
 
 export default function LogFuelForm({ onClose }: { onClose: () => void }) {
@@ -36,7 +37,12 @@ export default function LogFuelForm({ onClose }: { onClose: () => void }) {
                 setDone(true);
                 setTimeout(onClose, 1000);
               },
-              onError: () => setError("The fuel log could not be saved. Please try again."),
+              onError: (err) => {
+                const message = axios.isAxiosError(err)
+                  ? err.response?.data?.message || "The fuel log could not be saved. Please try again."
+                  : "The fuel log could not be saved. Please try again.";
+                setError(message);
+              },
             },
           );
         }}

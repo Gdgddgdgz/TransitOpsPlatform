@@ -46,8 +46,9 @@ export const authUser = async (req, res, next) => {
       });
     }
 
-    // First login after accepting invitation
-    if (!user.clerkUserId) {
+    // First login after accepting invitation (placeholder IDs were created by admin invite)
+    const isPendingInvite = user.clerkUserId?.startsWith("pending_");
+    if (!user.clerkUserId || isPendingInvite) {
       user = await prisma.user.update({
         where: {
           id: user.id,

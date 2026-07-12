@@ -3,7 +3,11 @@ import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 
 export const getFuelLogs = AsyncHandler(async (req, res) => {
-  const logs = await financialService.getFuelLogs(req.user.organizationId);
+  const isDriver = req.user.role === "DRIVER";
+  const logs = await financialService.getFuelLogs(
+    req.user.organizationId,
+    isDriver ? req.user.id : undefined
+  );
   return res.status(200).json(new ApiResponse(200, "Fuel logs retrieved.", logs));
 });
 
@@ -25,4 +29,9 @@ export const createExpense = AsyncHandler(async (req, res) => {
 export const getReportMetrics = AsyncHandler(async (req, res) => {
   const metrics = await financialService.getReportMetrics(req.user.organizationId);
   return res.status(200).json(new ApiResponse(200, "Report metrics retrieved.", metrics));
+});
+
+export const getDashboardMetrics = AsyncHandler(async (req, res) => {
+  const metrics = await financialService.getDashboardMetrics(req.user.organizationId);
+  return res.status(200).json(new ApiResponse(200, "Dashboard metrics retrieved.", metrics));
 });

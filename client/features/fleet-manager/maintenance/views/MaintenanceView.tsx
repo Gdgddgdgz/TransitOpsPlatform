@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { Wrench, IndianRupee, Truck } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";

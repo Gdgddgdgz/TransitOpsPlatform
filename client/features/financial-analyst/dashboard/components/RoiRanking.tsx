@@ -1,9 +1,12 @@
-import { useVehicles } from "@/lib/backend-queries";
+"use client";
+
+import { useFinancialDashboard } from "@/lib/backend-queries";
+import type { VehicleMetric } from "@/lib/types";
 
 export default function RoiRanking() {
-  const { data: vehicles = [] } = useVehicles();
-  const rows = vehicles
-    .map((vehicle) => ({ vehicle, roi: Number(vehicle.acquisitionCost) > 0 ? 12 : 0 }))
+  const { data: dashboard } = useFinancialDashboard();
+  const rows = (dashboard?.vehicleMetrics || [])
+    .map((vehicle) => ({ vehicle, roi: vehicle.roi }))
     .sort((a, b) => b.roi - a.roi);
 
   return (

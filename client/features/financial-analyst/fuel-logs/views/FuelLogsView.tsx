@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { useFuelLogs } from "@/lib/backend-queries";
 import FuelCostByVehicle from "../components/FuelCostByVehicle";

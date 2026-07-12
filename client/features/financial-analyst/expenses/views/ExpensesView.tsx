@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { useExpenses } from "@/lib/backend-queries";
 import ExpenseTable from "../components/ExpenseTable";

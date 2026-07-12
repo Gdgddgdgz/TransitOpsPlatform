@@ -3,23 +3,22 @@
 import { useMemo } from "react";
 import { IndianRupee, Fuel, Wrench, TrendingUp } from "lucide-react";
 import StatCard from "../../shared/components/StatCard";
-import { useExpenses, useFuelLogs, useTrips, useVehicles } from "@/lib/backend-queries";
+import { useFinancialDashboard } from "@/lib/backend-queries";
 import CostBreakdown from "../components/CostBreakdown";
 import RoiRanking from "../components/RoiRanking";
 
 export default function DashboardView() {
-  const { data: fuelLogs = [] } = useFuelLogs();
-  const { data: expenses = [] } = useExpenses();
-  const { data: trips = [] } = useTrips();
-  const { data: vehicles = [] } = useVehicles();
+  const { data: dashboard } = useFinancialDashboard();
 
   const stats = useMemo(() => {
-    const totalRevenue = trips.reduce((sum, trip) => sum + trip.revenue, 0);
-    const fuelCost = fuelLogs.reduce((sum, log) => sum + log.cost, 0);
-    const maintenanceCost = expenses.filter((expense) => expense.category === "Maintenance").reduce((sum, expense) => sum + expense.amount, 0);
-    const avgROI = vehicles.length > 0 ? Math.round((trips.reduce((sum, trip) => sum + trip.revenue, 0) - fuelCost - maintenanceCost) / vehicles.length) : 0;
-    return { totalRevenue, fuelCost, maintenanceCost, avgROI };
-  }, [fuelLogs, expenses, trips, vehicles]);
+    const totals = dashboard?.totals ?? { totalRevenue: 0, totalFuelCost: 0, totalMaintenanceCost: 0, avgROI: 0 };
+    return {
+      totalRevenue: totals.totalRevenue,
+      fuelCost: totals.totalFuelCost,
+      maintenanceCost: totals.totalMaintenanceCost,
+      avgROI: totals.avgROI,
+    };
+  }, [dashboard]);
 
   const breakdown = useMemo(() => [
     { label: "Fuel", value: stats.fuelCost, color: "var(--color-brand-cyan)" },

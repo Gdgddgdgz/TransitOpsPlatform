@@ -40,6 +40,25 @@ export interface Vehicle {
   region?: string;
 }
 
+export interface VehicleMetric extends Vehicle {
+  totalFuelCost: number;
+  totalMaintenanceCost: number;
+  totalRevenue: number;
+  totalOpCost: number;
+  roi: number;
+}
+
+export interface FinancialDashboard {
+  trips: Trip[];
+  vehicleMetrics: VehicleMetric[];
+  totals: {
+    totalRevenue: number;
+    totalFuelCost: number;
+    totalMaintenanceCost: number;
+    avgROI: number;
+  };
+}
+
 export interface Driver {
   id: string;
   name: string;

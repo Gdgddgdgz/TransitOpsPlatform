@@ -14,6 +14,18 @@ export const getMaintenanceLogs = async (organizationId) => {
   });
 };
 
+export const getRecentTrips = async (organizationId, limit = 5) => {
+  return await prisma.trip.findMany({
+    where: { organizationId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      vehicle: true,
+      driver: { include: { user: true } },
+    },
+  });
+};
+
 export const createVehicle = async (organizationId, data) => {
   // Check uniqueness of registrationNumber
   const existing = await prisma.vehicle.findUnique({

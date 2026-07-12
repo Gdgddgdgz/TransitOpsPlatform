@@ -17,6 +17,12 @@ export const getMaintenanceLogs = AsyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "Maintenance logs retrieved.", logs));
 });
 
+export const getRecentTrips = AsyncHandler(async (req, res) => {
+  const limit = Number(req.query.limit) || 5;
+  const trips = await fleetService.getRecentTrips(req.user.organizationId, limit);
+  return res.status(200).json(new ApiResponse(200, "Recent trips retrieved.", trips));
+});
+
 export const updateVehicle = AsyncHandler(async (req, res) => {
   const vehicle = await fleetService.updateVehicle(req.user.organizationId, req.params.id, req.body);
   return res.status(200).json(new ApiResponse(200, "Vehicle updated.", vehicle));

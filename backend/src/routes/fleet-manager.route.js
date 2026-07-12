@@ -5,13 +5,15 @@ import * as fleetController from "../controllers/fleet-manager.controller.js";
 
 const router = express.Router();
 
-// Apply auth and role-based validation to all routes
 router.use(authUser);
-router.use(checkRolesAllowed("FLEET_MANAGER", "ADMIN"));
 
+// Vehicle list is also needed by drivers (e.g., logging fuel)
 router.route("/vehicles")
-  .get(fleetController.getVehicles)
-  .post(fleetController.createVehicle);
+  .get(checkRolesAllowed("FLEET_MANAGER", "ADMIN", "DRIVER"), fleetController.getVehicles)
+  .post(checkRolesAllowed("FLEET_MANAGER", "ADMIN"), fleetController.createVehicle);
+
+// Remaining fleet routes are restricted to fleet managers and admins
+router.use(checkRolesAllowed("FLEET_MANAGER", "ADMIN"));
 
 router.route("/vehicles/:id")
   .put(fleetController.updateVehicle)
@@ -23,5 +25,8 @@ router.route("/maintenance")
 
 router.route("/maintenance/:id/close")
   .post(fleetController.closeMaintenanceLog);
+
+router.route("/recent-trips")
+  .get(fleetController.getRecentTrips);
 
 export default router;

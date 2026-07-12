@@ -2,6 +2,7 @@ import { clerkClient, getAuth } from "@clerk/express";
 import { prisma } from "../config/prisma.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiError from "../utils/ApiError.js";
+import crypto from "crypto";
 
 export const setupOrganization = AsyncHandler(async (req, res) => {
   const { userId, orgId, isAuthenticated } = getAuth(req);
@@ -86,18 +87,16 @@ export const inviteUser = AsyncHandler(async (req, res) => {
     throw new ApiError(409, "User already exists.");
   }
 
-  await clerkClient.organizations.createOrganizationInvitation(
-    organization.clerkOrgId,
-    {
-      inviterUserId: req.user.clerkUserId,
-      emailAddress: email,
-      role: "org:member",
-      publicMetadata: {
-        appRole: role,
-      },
-      redirectUrl: "http://localhost:3000/auth/sign-up",
-    }
-  );
+  await clerkClient.organizations.createOrganizationInvitation({
+    organizationId: organization.clerkOrgId,
+    inviterUserId: req.user.clerkUserId,
+    emailAddress: email,
+    role: "org:member",
+    publicMetadata: {
+      appRole: role,
+    },
+    redirectUrl: "http://localhost:3000/",
+  });
 
   const user = await prisma.user.create({
     data: {
