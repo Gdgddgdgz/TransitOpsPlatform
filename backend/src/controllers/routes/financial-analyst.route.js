@@ -1,7 +1,7 @@
 import express from "express";
-import { authUser } from "../middleware/authUser.js";
-import { checkRolesAllowed } from "../middleware/checkRolesAllowed.js";
-import * as financialController from "./financial-analyst.controller.js";
+import { authUser } from "../../middleware/authUser.js";
+import { checkRolesAllowed } from "../../middleware/checkRolesAllowed.js";
+import * as financialController from "../service/financial-analyst.controller.js";
 
 const router = express.Router();
 

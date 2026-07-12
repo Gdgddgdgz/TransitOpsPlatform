@@ -6,26 +6,12 @@ export const getCurrentUser = AsyncHandler(async (req, res) => {
   const { userId, orgId, isAuthenticated } = getAuth(req);
 
   if (!isAuthenticated) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized",
-    });
-  }
-
-  const clerkUser = await clerkClient.users.getUser(userId);
-
-  const email = clerkUser.emailAddresses?.[0]?.emailAddress;
-
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: "User has no email address associated with Clerk",
-    });
+    throw new ApiError(401, "Unauthorized");
   }
 
   const user = await prisma.user.findFirst({
     where: {
-      email,
+      clerkUserId: userId,
       organization: {
         clerkOrgId: orgId,
       },
@@ -36,13 +22,10 @@ export const getCurrentUser = AsyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
+    throw new ApiError(404, "User not found.");
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     success: true,
     data: user,
   });

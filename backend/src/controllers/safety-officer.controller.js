@@ -1,4 +1,4 @@
-import * as safetyService from "./safety-officer.service.js";
+import * as safetyService from "../service/safety-officer.service.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 

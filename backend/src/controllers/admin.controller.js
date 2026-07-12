@@ -7,47 +7,47 @@ export const setupOrganization = AsyncHandler(async (req, res) => {
   const { userId, orgId, isAuthenticated } = getAuth(req);
 
   if (!isAuthenticated || !userId || !orgId) {
-    return res.status(401).json({
-      success: false,
-      message: "No active organization found.",
-    });
+    throw new ApiError(401, "No active organization found.");
   }
 
-  // Fetch organization from Clerk
   const clerkOrg = await clerkClient.organizations.getOrganization({
     organizationId: orgId,
   });
 
-  // Fetch current user from Clerk
   const clerkUser = await clerkClient.users.getUser(userId);
 
-  const email = clerkUser.emailAddresses[0].emailAddress;
+  const email = clerkUser.emailAddresses?.[0]?.emailAddress;
 
-  // Prevent duplicate setup
-  const existingOrg = await prisma.organization.findUnique({
+  if (!email) {
+    throw new ApiError(400, "Email not found.");
+  }
+
+  // Upsert Organization
+  const organization = await prisma.organization.upsert({
     where: {
       clerkOrgId: orgId,
     },
-  });
-
-  if (existingOrg) {
-    return res.status(400).json({
-      success: false,
-      message: "Organization already initialized.",
-    });
-  }
-
-  // Save organization
-  const organization = await prisma.organization.create({
-    data: {
+    update: {
+      name: clerkOrg.name,
+    },
+    create: {
       clerkOrgId: orgId,
       name: clerkOrg.name,
     },
   });
 
-  // Save creator as ADMIN
-  const user = await prisma.user.create({
-    data: {
+  // Upsert User (Owner or Invited User)
+  const user = await prisma.user.upsert({
+    where: {
+      email,
+    },
+    update: {
+      clerkUserId: userId,
+      organizationId: organization.id,
+      name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim(),
+      isActive: true,
+    },
+    create: {
       clerkUserId: userId,
       organizationId: organization.id,
       name: `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim(),
@@ -57,9 +57,9 @@ export const setupOrganization = AsyncHandler(async (req, res) => {
     },
   });
 
-  res.status(201).json({
+  return res.status(200).json({
     success: true,
-    message: "Organization initialized successfully.",
+    message: "Organization synced successfully.",
     data: {
       organization,
       user,
@@ -74,10 +74,8 @@ export const inviteUser = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Email and role are required.");
   }
 
-  // req.user is set by authUser middleware
   const organization = req.user.organization;
 
-  // Prevent duplicate users
   const existingUser = await prisma.user.findUnique({
     where: {
       email,
@@ -88,32 +86,26 @@ export const inviteUser = AsyncHandler(async (req, res) => {
     throw new ApiError(409, "User already exists.");
   }
 
-  // Send Clerk invitation
   await clerkClient.organizations.createOrganizationInvitation(
     organization.clerkOrgId,
     {
       inviterUserId: req.user.clerkUserId,
       emailAddress: email,
-      role: "org:member", // Clerk role
-
-      // optional
+      role: "org:member",
       publicMetadata: {
         appRole: role,
       },
-
-      redirectUrl:
-        "http://localhost:3000/accept-invitation",
+      redirectUrl: "http://localhost:3000/auth/sign-up",
     }
   );
 
-  // Save your application's role
   const user = await prisma.user.create({
     data: {
-      clerkUserId: null,
+      clerkUserId: `pending_${crypto.randomUUID()}`,
       organizationId: organization.id,
       name: "",
       email,
-      role, // ADMIN / FLEET_MANAGER / DRIVER ...
+      role,
       isActive: false,
     },
   });

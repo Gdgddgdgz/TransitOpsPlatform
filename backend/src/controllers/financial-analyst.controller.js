@@ -1,4 +1,4 @@
-import * as financialService from "./financial-analyst.service.js";
+import * as financialService from "../service/financial-analyst.service.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 

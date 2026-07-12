@@ -1,4 +1,4 @@
-import * as fleetService from "./fleet-manager.service.js";
+import * as fleetService from "../service/fleet-manager.service.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 

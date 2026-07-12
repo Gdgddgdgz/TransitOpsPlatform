@@ -1,4 +1,4 @@
-import * as driverService from "./driver.service.js";
+import * as driverService from "../service/driver.service.js";
 import AsyncHandler from "../utils/AsyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 

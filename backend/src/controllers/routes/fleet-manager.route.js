@@ -1,7 +1,7 @@
 import express from "express";
-import { authUser } from "../middleware/authUser.js";
-import { checkRolesAllowed } from "../middleware/checkRolesAllowed.js";
-import * as fleetController from "./fleet-manager.controller.js";
+import { authUser } from "../../middleware/authUser.js";
+import { checkRolesAllowed } from "../../middleware/checkRolesAllowed.js";
+import * as fleetController from "../service/fleet-manager.controller.js";
 
 const router = express.Router();
 
