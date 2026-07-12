@@ -6,8 +6,10 @@ import { vehicles } from "../data/data";
 import VehicleFilters from "../components/VehicleFilters";
 import VehicleTable from "../components/VehicleTable";
 import AddVehicleModal from "../components/AddVehicleModal";
+import { useMockState } from "@/lib/mock-db";
 
 export default function VehiclesView() {
+  useMockState();
   const [query, setQuery] = useState("");
   const [type, setType] = useState("");
   const [status, setStatus] = useState("");

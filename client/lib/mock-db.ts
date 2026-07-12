@@ -87,7 +87,7 @@ export function revenueForVehicle(vehicleId: string) {
 
 export function vehicleROI(vehicleId: string) {
   const v = getVehicle(vehicleId);
-  if (!v) return 0;
+  if (!v || !v.acquisitionCost || v.acquisitionCost === 0) return 0;
   const revenue = revenueForVehicle(vehicleId);
   const cost = fuelCostForVehicle(vehicleId) + maintenanceCostForVehicle(vehicleId);
   return ((revenue - cost) / v.acquisitionCost) * 100;
@@ -100,6 +100,199 @@ export function fleetUtilization() {
 }
 
 export function daysUntil(dateStr: string) {
-  const diff = new Date(dateStr).getTime() - Date.now();
+  const target = new Date(dateStr);
+  const targetUtc = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+  
+  const today = new Date();
+  const todayUtc = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  
+  const diff = targetUtc - todayUtc;
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
+// ---- Global State Notification System ----
+import { useState, useEffect } from "react";
+
+const listeners = new Set<() => void>();
+
+export function useMockState() {
+  const [, setVersion] = useState(0);
+  useEffect(() => {
+    const handler = () => setVersion((v) => v + 1);
+    listeners.add(handler);
+    return () => {
+      listeners.delete(handler);
+    };
+  }, []);
+}
+
+export function notifyDataChanged() {
+  listeners.forEach((listener) => {
+    try {
+      listener();
+    } catch (e) {
+      // ignore unmounted listeners errors
+    }
+  });
+}
+
+// ---- Mutators ----
+export function addVehicle(v: Omit<Vehicle, "id">) {
+  const newVehicle: Vehicle = {
+    ...v,
+    id: "v" + (vehicles.length + 1),
+  };
+  vehicles.push(newVehicle);
+  notifyDataChanged();
+  return newVehicle;
+}
+
+export function addDriver(d: Omit<Driver, "id">) {
+  const newDriver: Driver = {
+    ...d,
+    id: "d" + (drivers.length + 1),
+  };
+  drivers.push(newDriver);
+  notifyDataChanged();
+  return newDriver;
+}
+
+export function addTrip(t: Omit<Trip, "id" | "tripNumber" | "status">) {
+  const nextNum = 1001 + trips.length;
+  const newTrip: Trip = {
+    ...t,
+    id: "t" + (trips.length + 1),
+    tripNumber: `TRP-${nextNum}`,
+    status: "Draft",
+  };
+  trips.push(newTrip);
+  
+  // Apply Business Rule: Dispatching changes vehicle and driver status to "On Trip" if status is Dispatch
+  // Since new trips start as Draft, we don't automatically dispatch yet.
+  
+  notifyDataChanged();
+  return newTrip;
+}
+
+export function dispatchTrip(tripId: string) {
+  const t = trips.find(trip => trip.id === tripId);
+  if (t && t.status === "Draft") {
+    t.status = "Dispatched";
+    t.dispatchedAt = new Date().toISOString();
+    
+    // Set vehicle and driver status to "On Trip"
+    const v = vehicles.find(veh => veh.id === t.vehicleId);
+    if (v) v.status = "On Trip";
+    
+    const d = drivers.find(drv => drv.id === t.driverId);
+    if (d) d.status = "On Trip";
+    
+    notifyDataChanged();
+  }
+}
+
+export function completeTrip(tripId: string, actualDistance: number, endOdometer: number, fuelLiters: number, fuelCost: number) {
+  const t = trips.find(trip => trip.id === tripId);
+  if (t && t.status === "Dispatched") {
+    t.status = "Completed";
+    t.completedAt = new Date().toISOString();
+    t.actualDistance = actualDistance;
+    t.endOdometer = endOdometer;
+    
+    // Set vehicle and driver status to "Available"
+    const v = vehicles.find(veh => veh.id === t.vehicleId);
+    if (v) {
+      v.status = "Available";
+      v.odometer = endOdometer;
+    }
+    
+    const d = drivers.find(drv => drv.id === t.driverId);
+    if (d) d.status = "Available";
+    
+    // Record fuel log if provided
+    if (fuelLiters > 0) {
+      fuelLogs.push({
+        id: "f" + (fuelLogs.length + 1),
+        vehicleId: t.vehicleId,
+        tripId: t.id,
+        liters: fuelLiters,
+        cost: fuelCost,
+        fuelDate: new Date().toISOString().split("T")[0],
+      });
+    }
+    
+    notifyDataChanged();
+  }
+}
+
+export function cancelTrip(tripId: string) {
+  const t = trips.find(trip => trip.id === tripId);
+  if (t) {
+    const oldStatus = t.status;
+    t.status = "Cancelled";
+    
+    // Restores vehicle and driver back to Available if they were dispatched
+    if (oldStatus === "Dispatched") {
+      const v = vehicles.find(veh => veh.id === t.vehicleId);
+      if (v) v.status = "Available";
+      
+      const d = drivers.find(drv => drv.id === t.driverId);
+      if (d) d.status = "Available";
+    }
+    
+    notifyDataChanged();
+  }
+}
+
+export function addMaintenanceLog(m: Omit<MaintenanceLog, "id" | "status" | "openedAt">) {
+  const newLog: MaintenanceLog = {
+    ...m,
+    id: "m" + (maintenanceLogs.length + 1),
+    status: "Open",
+    openedAt: new Date().toISOString().split("T")[0],
+  };
+  maintenanceLogs.push(newLog);
+  
+  // Business Rule: Adding vehicle to maintenance automatically switches status to "In Shop"
+  const v = vehicles.find(veh => veh.id === m.vehicleId);
+  if (v) v.status = "In Shop";
+  
+  notifyDataChanged();
+  return newLog;
+}
+
+export function closeMaintenanceLog(logId: string) {
+  const log = maintenanceLogs.find(m => m.id === logId);
+  if (log && log.status === "Open") {
+    log.status = "Closed";
+    log.closedAt = new Date().toISOString().split("T")[0];
+    
+    // Business Rule: Restores vehicle status to Available (unless retired)
+    const v = vehicles.find(veh => veh.id === log.vehicleId);
+    if (v && v.status !== "Retired") {
+      v.status = "Available";
+    }
+    
+    notifyDataChanged();
+  }
+}
+
+export function addFuelLog(f: Omit<FuelLog, "id">) {
+  const newLog: FuelLog = {
+    ...f,
+    id: "f" + (fuelLogs.length + 1),
+  };
+  fuelLogs.push(newLog);
+  notifyDataChanged();
+  return newLog;
+}
+
+export function addExpense(e: Omit<Expense, "id">) {
+  const newExpense: Expense = {
+    ...e,
+    id: "e" + (expenses.length + 1),
+  };
+  expenses.push(newExpense);
+  notifyDataChanged();
+  return newExpense;
 }

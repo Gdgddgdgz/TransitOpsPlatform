@@ -9,7 +9,7 @@ export function getSafetyStats() {
     return days <= 30 && days >= 0;
   }).length;
   const expired = drivers.filter((d) => daysUntil(d.licenseExpiry) < 0).length;
-  const avgSafetyScore = Math.round(drivers.reduce((s, d) => s + d.safetyScore, 0) / total);
+  const avgSafetyScore = total === 0 ? 0 : Math.round(drivers.reduce((s, d) => s + d.safetyScore, 0) / total);
   return { total, onDuty, suspended, expiringSoon, expired, avgSafetyScore };
 }
 

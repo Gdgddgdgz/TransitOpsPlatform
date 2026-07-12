@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { addVehicle } from "@/lib/mock-db";
 
 export default function AddVehicleModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null;
@@ -21,32 +22,50 @@ export default function AddVehicleModal({ open, onClose }: { open: boolean; onCl
           className="grid grid-cols-2 gap-4"
           onSubmit={(e) => {
             e.preventDefault();
+            const target = e.currentTarget;
+            const reg = target.elements.namedItem("registrationNumber") as HTMLInputElement;
+            const model = target.elements.namedItem("model") as HTMLInputElement;
+            const type = target.elements.namedItem("type") as HTMLInputElement;
+            const maxLoad = target.elements.namedItem("maxLoad") as HTMLInputElement;
+            const cost = target.elements.namedItem("cost") as HTMLInputElement;
+            const status = target.elements.namedItem("status") as HTMLSelectElement;
+            
+            addVehicle({
+              registrationNumber: reg.value,
+              model: model.value,
+              type: type.value,
+              maxLoadCapacity: Number(maxLoad.value),
+              acquisitionCost: Number(cost.value),
+              status: status.value as any,
+              odometer: 0,
+              region: "West",
+            });
             onClose();
           }}
         >
           <div className="col-span-2">
             <label className="text-xs text-muted-foreground mb-1.5 block">Registration Number</label>
-            <input required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. MH-12-XX-0000" />
+            <input name="registrationNumber" required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. MH-12-XX-0000" />
           </div>
           <div className="col-span-2">
             <label className="text-xs text-muted-foreground mb-1.5 block">Model</label>
-            <input required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Tata Van-05" />
+            <input name="model" required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="e.g. Tata Van-05" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Type</label>
-            <input required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Van" />
+            <input name="type" required className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="Van" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Max Load (kg)</label>
-            <input required type="number" className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="500" />
+            <input name="maxLoad" required type="number" className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="500" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Acquisition Cost (₹)</label>
-            <input required type="number" className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="1250000" />
+            <input name="cost" required type="number" className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" placeholder="1250000" />
           </div>
           <div>
             <label className="text-xs text-muted-foreground mb-1.5 block">Status</label>
-            <select className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+            <select name="status" className="w-full rounded-lg border border-input bg-secondary/60 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring">
               <option>Available</option>
               <option>In Shop</option>
             </select>
